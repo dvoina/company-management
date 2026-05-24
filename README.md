@@ -24,7 +24,7 @@ To adapt it for another country (for example, **Estonia**), update these parts f
    - Settings → Actions → General → Workflow permissions → *Read and write*
 4. That's it. No secrets needed for core functionality.
 5. For local script runs, install dependencies with `pip install -r requirements.txt`.
-6. For local accounting actions, use `python gl.py --help`.
+6. For local accounting actions, use `python scripts/gl.py --help`.
 
 Run tests locally:
 ```
@@ -33,19 +33,19 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 ---
 
-## Local CLI (gl.py)
+## Local CLI (scripts/gl.py)
 
-`gl.py` provides non-interactive local commands that write to the same ledger files used by CI workflows.
+`scripts/gl.py` provides non-interactive local commands that write to the same ledger files used by CI workflows.
 
 Examples:
 ```bash
-python gl.py income --client "ACME SRL" --amount-net 1000 --date 2026-04-05 --due-date 2026-05-05 --json
-python gl.py expense --supplier "Vendor SRL" --amount-net 100 --vat-amount 19 --category Software --date 2026-04-06 --json
-python gl.py pay --invoice-id FCT-001 --paid-date 2026-04-10 --json
-python gl.py summary --json
-python gl.py validate
-python gl.py plan-validate
-python gl.py plan-tree
+python scripts/gl.py income --client "ACME SRL" --amount-net 1000 --date 2026-04-05 --due-date 2026-05-05 --json
+python scripts/gl.py expense --supplier "Vendor SRL" --amount-net 100 --vat-amount 19 --category Software --date 2026-04-06 --json
+python scripts/gl.py pay --invoice-id FCT-001 --paid-date 2026-04-10 --json
+python scripts/gl.py summary --json
+python scripts/gl.py validate
+python scripts/gl.py plan-validate
+python scripts/gl.py plan-tree
 ```
 
 ---
@@ -155,7 +155,7 @@ Failures block merges if you set branch protection rules.
 **account_plan.yml**
 - Auditable chart of accounts (Romanian synthetic/analytic hierarchy)
 - Single source of truth for account code, name, parent, type, and postable status
-- Can be validated/visualized with `python gl.py plan-validate` and `python gl.py plan-tree`
+- Can be validated/visualized with `python scripts/gl.py plan-validate` and `python scripts/gl.py plan-tree`
 
 ---
 

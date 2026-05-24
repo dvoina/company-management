@@ -1,5 +1,6 @@
 """log_expense.py — parse expense issue, log it, post journal entries."""
 import os
+import typer
 from ledger_lib import (
     ensure_ledger, read_expenses, write_expenses,
     next_expense_id, parse_amount, extract_field,
@@ -54,4 +55,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

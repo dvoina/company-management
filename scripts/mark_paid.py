@@ -1,6 +1,7 @@
 """mark_paid.py — mark invoice paid and post payment journal entries."""
 import os
 from datetime import date
+import typer
 from ledger_lib import ensure_ledger, read_invoices, write_invoices, post_journal_entries
 from double_entry import journal_for_payment
 
@@ -30,4 +31,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

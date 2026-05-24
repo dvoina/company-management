@@ -3,6 +3,7 @@ register_invoice.py — parse invoice issue, write ledger row, post journal entr
 """
 import json, os
 from datetime import date
+import typer
 from ledger_lib import (
     ensure_ledger, read_invoices, write_invoices,
     next_invoice_id, parse_amount, extract_field, extract_line_items,
@@ -73,4 +74,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

@@ -10,15 +10,16 @@ Usage:
     python scripts/saft_export.py                    # last month
 """
 
-import argparse
 import json
 import sys
 from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
+from typing import Optional
 from xml.etree.ElementTree import Element, SubElement, indent, tostring
 from xml.dom import minidom
 
+import typer
 sys.path.insert(0, str(Path(__file__).parent))
 from ledger_lib import (
     account_name, load_settings, read_invoices, read_expenses, read_journal,
@@ -323,14 +324,8 @@ def build_xml(period, settings, invoices, expenses, journal):
     return root
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--period", help="YYYY-MM or YYYY", default=None)
-    args = parser.parse_args()
-
-    if args.period:
-        period = args.period
-    else:
+def main(period: Optional[str] = typer.Option(None, "--period", help="YYYY-MM or YYYY")):
+    if not period:
         # Default: last month
         today = date.today()
         m = today.month - 1 or 12
@@ -365,4 +360,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

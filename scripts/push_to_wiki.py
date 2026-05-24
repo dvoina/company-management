@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+import typer
 
 sys.path.insert(0, str(Path(__file__).parent))
 from monthly_report import get_target_month
@@ -70,4 +71,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

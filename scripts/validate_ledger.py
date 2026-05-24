@@ -6,6 +6,7 @@ Exits with code 1 if critical errors are found.
 
 import sys
 from pathlib import Path
+import typer
 sys.path.insert(0, str(Path(__file__).parent))
 from ledger_lib import read_invoices, read_expenses
 from account_plan import validate_account_plan
@@ -110,4 +111,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

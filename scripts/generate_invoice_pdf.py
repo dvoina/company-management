@@ -3,11 +3,12 @@ generate_invoice_pdf.py
 Render a branded invoice PDF from ledger/invoices.csv and optionally sign it.
 """
 
-import argparse
 import json
 import os
 from pathlib import Path
+from typing import Optional
 
+import typer
 from ledger_lib import ROOT, LEDGER_DIR, ensure_ledger, load_settings, read_invoices
 
 try:
@@ -19,13 +20,6 @@ except ImportError as exc:
     raise RuntimeError(
         "Missing dependency: reportlab. Install with `pip install reportlab`."
     ) from exc
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Generate invoice PDF from ledger row")
-    parser.add_argument("--invoice-id", help="Invoice ID, e.g. FCT-001")
-    parser.add_argument("--output", help="Output PDF path (default: generated/invoices/<id>.pdf)")
-    return parser.parse_args()
 
 
 def to_float(value, default=0.0):
@@ -326,16 +320,20 @@ def sign_pdf_if_enabled(unsigned_pdf, signed_pdf, settings):
     return True
 
 
-def main():
+def main(
+    invoice_id: Optional[str] = typer.Option(None, "--invoice-id", help="Invoice ID, e.g. FCT-001"),
+    output: Optional[str] = typer.Option(
+        None, "--output", help="Output PDF path (default: generated/invoices/<id>.pdf)"
+    ),
+):
     ensure_ledger()
-    args = parse_args()
     settings = load_settings()
 
-    invoice_id = invoice_id_from_context(args.invoice_id)
-    invoice = load_invoice(invoice_id)
+    resolved_invoice_id = invoice_id_from_context(invoice_id)
+    invoice = load_invoice(resolved_invoice_id)
 
     output_cfg = (settings.get("invoice_pdf") or {}).get("output_dir", "generated/invoices")
-    output_path = Path(args.output) if args.output else Path(output_cfg) / f"{invoice_id}.pdf"
+    output_path = Path(output) if output else Path(output_cfg) / f"{resolved_invoice_id}.pdf"
     if not output_path.is_absolute():
         output_path = ROOT / output_path
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -349,4 +347,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

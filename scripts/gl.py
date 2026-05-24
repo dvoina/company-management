@@ -12,9 +12,8 @@ from typing import Optional
 
 import typer
 
-ROOT = Path(__file__).resolve().parent
-SCRIPTS_DIR = ROOT / "scripts"
-sys.path.insert(0, str(SCRIPTS_DIR))
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS_DIR = Path(__file__).resolve().parent
 
 from double_entry import journal_for_expense, journal_for_invoice, journal_for_payment
 from ledger_lib import (

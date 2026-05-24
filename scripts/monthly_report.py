@@ -9,6 +9,7 @@ import sys
 from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
+import typer
 
 # Allow running from repo root or scripts/
 sys.path.insert(0, str(Path(__file__).parent))
@@ -149,4 +150,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)

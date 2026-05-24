@@ -11,6 +11,7 @@ from calendar import monthrange
 from collections import defaultdict
 from datetime import date
 from pathlib import Path
+import typer
 
 sys.path.insert(0, str(Path(__file__).parent))
 from ledger_lib import load_settings, read_journal
@@ -191,4 +192,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)
