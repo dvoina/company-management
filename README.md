@@ -167,9 +167,9 @@ scripts/
   mark_paid.py           # Mark invoice paid
   log_expense.py         # Parse & log expense issues
   monthly_report.py      # Generate P&L markdown
-balance_sheet.py       # Generate month-end balance sheet markdown
-validate_ledger.py     # Integrity validation
-push_to_wiki.py        # Push reports to wiki
+  balance_sheet.py       # Generate month-end balance sheet markdown
+  validate_ledger.py     # Integrity validation
+  push_to_wiki.py        # Push reports to wiki
 generated/
   reports/               # YYYY-MM.md report files
 ```
