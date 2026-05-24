@@ -1,0 +1,112 @@
+name: Invoice Lifecycle
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  # ── When a new invoice issue is opened ──────────────────────────────────────
+  register-invoice:
+    if: >
+      github.event.action == 'opened' &&
+      contains(github.event.issue.labels.*.name, 'invoice')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install python-dateutil
+
+      - name: Parse issue and register invoice
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_DATE: ${{ github.event.issue.created_at }}
+        run: python scripts/register_invoice.py
+
+      - name: Commit ledger update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ledger/
+          git diff --staged --quiet || git commit -m "ledger: register invoice #${{ github.event.issue.number }}"
+          git push
+
+      - name: Comment on issue with confirmation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let invoiceNum = 'registered';
+            try {
+              const log = fs.readFileSync('ledger/last_action.txt', 'utf8');
+              invoiceNum = log.trim();
+            } catch {}
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ **Invoice registered** as \`${invoiceNum}\` in the ledger.\n\nAdd label \`paid\` when payment is received to close this out.`
+            });
+
+  # ── When invoice is marked paid ─────────────────────────────────────────────
+  mark-paid:
+    if: >
+      github.event.action == 'labeled' &&
+      github.event.label.name == 'paid'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install python-dateutil
+
+      - name: Mark invoice as paid
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PAID_DATE: ${{ github.event.label.created_at }}
+        run: python scripts/mark_paid.py
+
+      - name: Commit ledger update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ledger/
+          git diff --staged --quiet || git commit -m "ledger: mark invoice #${{ github.event.issue.number }} as paid"
+          git push
+
+      - name: Comment and close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `💰 **Payment recorded.** Invoice closed.`
+            });
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });

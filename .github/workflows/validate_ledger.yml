@@ -1,0 +1,33 @@
+name: Validate Ledger
+
+on:
+  push:
+    paths:
+      - 'ledger/**'
+  pull_request:
+    paths:
+      - 'ledger/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install python-dateutil
+
+      - name: Validate ledger integrity
+        run: python scripts/validate_ledger.py
+
+      - name: Print summary
+        if: always()
+        run: |
+          echo "## Ledger Summary" >> $GITHUB_STEP_SUMMARY
+          cat ledger/summary.txt >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo "No summary yet." >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,47 @@
+name: Monthly Report
+
+on:
+  schedule:
+    # 1st of every month at 08:00 UTC
+    - cron: '0 8 1 * *'
+  workflow_dispatch:
+    inputs:
+      month:
+        description: 'Month to report (YYYY-MM, default: last month)'
+        required: false
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install python-dateutil tabulate
+
+      - name: Generate monthly report
+        env:
+          REPORT_MONTH: ${{ github.event.inputs.month }}
+        run: python scripts/monthly_report.py
+
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add generated/reports/
+          git diff --staged --quiet || git commit -m "report: monthly P&L $(date +'%Y-%m')"
+          git push
+
+      - name: Update wiki
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: python scripts/push_to_wiki.py
