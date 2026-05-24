@@ -1,0 +1,245 @@
+metadata:
+  country: RO
+  standard: "OMFP 1802/2014 (subset)"
+  currency: RON
+  version: 1
+
+accounts:
+  - code: "1"
+    name: "Conturi de capitaluri"
+    kind: synthetic
+    type: equity
+    postable: false
+
+  - code: "2"
+    name: "Conturi de imobilizări"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "21"
+    name: "Imobilizări corporale"
+    parent: "2"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "214"
+    name: "Mobilier, aparatură birotică"
+    parent: "21"
+    kind: analytic
+    type: asset
+    postable: true
+
+  - code: "4"
+    name: "Conturi de terți"
+    kind: synthetic
+    type: liability
+    postable: false
+
+  - code: "40"
+    name: "Furnizori și conturi asimilate"
+    parent: "4"
+    kind: synthetic
+    type: liability
+    postable: false
+
+  - code: "401"
+    name: "Furnizori"
+    parent: "40"
+    kind: analytic
+    type: liability
+    postable: true
+
+  - code: "41"
+    name: "Clienți și conturi asimilate"
+    parent: "4"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "411"
+    name: "Clienți"
+    parent: "41"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "4111"
+    name: "Clienți"
+    parent: "411"
+    kind: analytic
+    type: asset
+    postable: true
+
+  - code: "44"
+    name: "Bugetul statului, fonduri speciale și conturi asimilate"
+    parent: "4"
+    kind: synthetic
+    type: liability
+    postable: false
+
+  - code: "442"
+    name: "TVA"
+    parent: "44"
+    kind: synthetic
+    type: liability
+    postable: false
+
+  - code: "4423"
+    name: "TVA de plată"
+    parent: "442"
+    kind: analytic
+    type: liability
+    postable: true
+
+  - code: "4426"
+    name: "TVA deductibilă"
+    parent: "442"
+    kind: analytic
+    type: asset
+    postable: true
+
+  - code: "4427"
+    name: "TVA colectată"
+    parent: "442"
+    kind: analytic
+    type: liability
+    postable: true
+
+  - code: "5"
+    name: "Conturi de trezorerie"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "51"
+    name: "Conturi la bănci"
+    parent: "5"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "512"
+    name: "Conturi curente la bănci"
+    parent: "51"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "5121"
+    name: "Conturi la bănci în lei"
+    parent: "512"
+    kind: analytic
+    type: asset
+    postable: true
+
+  - code: "5124"
+    name: "Conturi la bănci în valută"
+    parent: "512"
+    kind: analytic
+    type: asset
+    postable: true
+
+  - code: "53"
+    name: "Casa"
+    parent: "5"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "531"
+    name: "Casa"
+    parent: "53"
+    kind: synthetic
+    type: asset
+    postable: false
+
+  - code: "5311"
+    name: "Casa în lei"
+    parent: "531"
+    kind: analytic
+    type: asset
+    postable: true
+
+  - code: "6"
+    name: "Conturi de cheltuieli"
+    kind: synthetic
+    type: expense
+    postable: false
+
+  - code: "60"
+    name: "Cheltuieli privind stocurile"
+    parent: "6"
+    kind: synthetic
+    type: expense
+    postable: false
+
+  - code: "604"
+    name: "Cheltuieli privind materialele nestocate"
+    parent: "60"
+    kind: analytic
+    type: expense
+    postable: true
+
+  - code: "605"
+    name: "Cheltuieli privind energia și apa"
+    parent: "60"
+    kind: analytic
+    type: expense
+    postable: true
+
+  - code: "62"
+    name: "Cheltuieli cu alte servicii executate de terți"
+    parent: "6"
+    kind: synthetic
+    type: expense
+    postable: false
+
+  - code: "623"
+    name: "Cheltuieli de protocol, reclamă și publicitate"
+    parent: "62"
+    kind: analytic
+    type: expense
+    postable: true
+
+  - code: "625"
+    name: "Cheltuieli cu deplasări, detașări și transferări"
+    parent: "62"
+    kind: analytic
+    type: expense
+    postable: true
+
+  - code: "628"
+    name: "Alte cheltuieli cu serviciile executate de terți"
+    parent: "62"
+    kind: analytic
+    type: expense
+    postable: true
+
+  - code: "7"
+    name: "Conturi de venituri"
+    kind: synthetic
+    type: revenue
+    postable: false
+
+  - code: "70"
+    name: "Cifra de afaceri netă"
+    parent: "7"
+    kind: synthetic
+    type: revenue
+    postable: false
+
+  - code: "704"
+    name: "Venituri din servicii prestate"
+    parent: "70"
+    kind: analytic
+    type: revenue
+    postable: true
+
+  - code: "707"
+    name: "Venituri din vânzarea mărfurilor"
+    parent: "70"
+    kind: analytic
+    type: revenue
+    postable: true

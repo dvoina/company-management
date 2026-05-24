@@ -21,7 +21,7 @@ from xml.dom import minidom
 
 sys.path.insert(0, str(Path(__file__).parent))
 from ledger_lib import (
-    load_settings, read_invoices, read_expenses, read_journal,
+    account_name, load_settings, read_invoices, read_expenses, read_journal,
 )
 
 OUTPUT_DIR = Path(__file__).parent.parent / "generated" / "saft"
@@ -112,23 +112,23 @@ def build_xml(period, settings, invoices, expenses, journal):
 
     # Chart of Accounts
     accts_used = {
-        sa["revenue_services"]: "Venituri din servicii prestate",
-        sa["receivables"]:      "Clienți",
-        sa["payables"]:         "Furnizori",
-        sa["vat_collected"]:    "TVA colectată",
-        sa["vat_deductible"]:   "TVA deductibilă",
-        sa["vat_payable"]:      "TVA de plată",
-        sa["bank_ron"]:         "Conturi la bănci în lei",
-        sa["bank_eur"]:         "Conturi la bănci în valută",
-        sa["expenses_services"]:"Cheltuieli cu servicii",
-        sa["expenses_travel"]:  "Cheltuieli deplasări",
+        sa["revenue_services"]: account_name(sa["revenue_services"], "Venituri din servicii prestate"),
+        sa["receivables"]:      account_name(sa["receivables"], "Clienți"),
+        sa["payables"]:         account_name(sa["payables"], "Furnizori"),
+        sa["vat_collected"]:    account_name(sa["vat_collected"], "TVA colectată"),
+        sa["vat_deductible"]:   account_name(sa["vat_deductible"], "TVA deductibilă"),
+        sa["vat_payable"]:      account_name(sa["vat_payable"], "TVA de plată"),
+        sa["bank_ron"]:         account_name(sa["bank_ron"], "Conturi la bănci în lei"),
+        sa["bank_eur"]:         account_name(sa["bank_eur"], "Conturi la bănci în valută"),
+        sa["expenses_services"]: account_name(sa["expenses_services"], "Cheltuieli cu servicii"),
+        sa["expenses_travel"]:  account_name(sa["expenses_travel"], "Cheltuieli deplasări"),
     }
     # Add GL accounts from journal
     for jrow in journal:
         code = jrow.get("account_code", "")
         name = jrow.get("account_name", "")
         if code and code not in accts_used:
-            accts_used[code] = name
+            accts_used[code] = account_name(code, name)
 
     gla = SubElement(mf, "GeneralLedgerAccounts")
     for code, name in sorted(accts_used.items()):

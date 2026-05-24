@@ -294,8 +294,12 @@ def summary_command(as_json: bool = typer.Option(False, "--json")) -> None:
 
 @app.command("validate")
 def validate_command() -> None:
+    _run_script("validate_ledger.py")
+
+
+def _run_script(script_name: str, *args: str) -> None:
     proc = subprocess.run(
-        [sys.executable, str(SCRIPTS_DIR / "validate_ledger.py")],
+        [sys.executable, str(SCRIPTS_DIR / script_name), *args],
         cwd=str(ROOT),
         capture_output=True,
         text=True,
@@ -306,6 +310,24 @@ def validate_command() -> None:
         typer.echo(proc.stderr.strip(), err=True)
     if proc.returncode:
         raise typer.Exit(proc.returncode)
+
+
+@app.command("plan-validate")
+def plan_validate_command() -> None:
+    _run_script("account_plan.py", "validate")
+
+
+@app.command("plan-tree")
+def plan_tree_command(
+    markdown: bool = typer.Option(False, "--markdown"),
+    output: Optional[str] = typer.Option(None, "--output"),
+) -> None:
+    args = ["tree"]
+    if markdown:
+        args.append("--markdown")
+    if output:
+        args.extend(["--output", output])
+    _run_script("account_plan.py", *args)
 
 
 if __name__ == "__main__":

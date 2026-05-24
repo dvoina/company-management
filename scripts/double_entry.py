@@ -6,7 +6,7 @@ Called after register_invoice.py and log_expense.py.
 
 import json
 from datetime import date
-from ledger_lib import load_settings, post_journal_entries
+from ledger_lib import account_name, load_settings, post_journal_entries
 
 
 def journal_for_invoice(inv):
@@ -34,14 +34,16 @@ def journal_for_invoice(inv):
         # Debit receivable
         {
             "date": inv_date, "description": f"Invoice {inv_id} — {desc}",
-            "account_code": accts["receivables"], "account_name": "Clienți",
+            "account_code": accts["receivables"],
+            "account_name": account_name(accts["receivables"], "Clienți"),
             "debit": total, "credit": 0,
             "currency": currency, "source_type": "invoice", "source_id": inv_id,
         },
         # Credit revenue
         {
             "date": inv_date, "description": f"Invoice {inv_id} — {desc}",
-            "account_code": accts["revenue_services"], "account_name": "Venituri din servicii",
+            "account_code": accts["revenue_services"],
+            "account_name": account_name(accts["revenue_services"], "Venituri din servicii"),
             "debit": 0, "credit": subtotal,
             "currency": currency, "source_type": "invoice", "source_id": inv_id,
         },
@@ -49,7 +51,8 @@ def journal_for_invoice(inv):
     if vat:
         entries.append({
             "date": inv_date, "description": f"TVA colectată {inv_id}",
-            "account_code": accts["vat_collected"], "account_name": "TVA colectată",
+            "account_code": accts["vat_collected"],
+            "account_name": account_name(accts["vat_collected"], "TVA colectată"),
             "debit": 0, "credit": vat,
             "currency": currency, "source_type": "invoice", "source_id": inv_id,
         })
@@ -69,14 +72,16 @@ def journal_for_payment(inv):
         # Debit bank
         {
             "date": paid_date, "description": f"Payment received {inv_id}",
-            "account_code": bank_acct, "account_name": "Cont bancar",
+            "account_code": bank_acct,
+            "account_name": account_name(bank_acct, "Cont bancar"),
             "debit": total, "credit": 0,
             "currency": currency, "source_type": "payment", "source_id": inv_id,
         },
         # Credit receivable
         {
             "date": paid_date, "description": f"Payment received {inv_id}",
-            "account_code": accts["receivables"], "account_name": "Clienți",
+            "account_code": accts["receivables"],
+            "account_name": account_name(accts["receivables"], "Clienți"),
             "debit": 0, "credit": total,
             "currency": currency, "source_type": "payment", "source_id": inv_id,
         },
@@ -111,14 +116,16 @@ def journal_for_expense(exp):
         # Debit expense
         {
             "date": exp_date, "description": f"Expense {exp_id} — {desc}",
-            "account_code": gl_acct, "account_name": f"Cheltuieli {cat}",
+            "account_code": gl_acct,
+            "account_name": account_name(gl_acct, f"Cheltuieli {cat}"),
             "debit": net, "credit": 0,
             "currency": currency, "source_type": "expense", "source_id": exp_id,
         },
         # Credit payable
         {
             "date": exp_date, "description": f"Expense {exp_id} — {exp.get('supplier_name','')}",
-            "account_code": accts["payables"], "account_name": "Furnizori",
+            "account_code": accts["payables"],
+            "account_name": account_name(accts["payables"], "Furnizori"),
             "debit": 0, "credit": total,
             "currency": currency, "source_type": "expense", "source_id": exp_id,
         },
@@ -126,7 +133,8 @@ def journal_for_expense(exp):
     if vat:
         entries.append({
             "date": exp_date, "description": f"TVA deductibilă {exp_id}",
-            "account_code": accts["vat_deductible"], "account_name": "TVA deductibilă",
+            "account_code": accts["vat_deductible"],
+            "account_name": account_name(accts["vat_deductible"], "TVA deductibilă"),
             "debit": vat, "credit": 0,
             "currency": currency, "source_type": "expense", "source_id": exp_id,
         })

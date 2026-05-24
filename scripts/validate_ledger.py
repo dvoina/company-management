@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from ledger_lib import read_invoices, read_expenses
+from account_plan import validate_account_plan
+from ledger_lib import load_account_plan, load_settings
 from datetime import date
 
 errors   = []
@@ -60,21 +62,38 @@ def check_expenses():
         seen_ids.add(exp_id)
 
         try:
-            amount = float(r.get("amount") or 0)
+            amount_net = float(r.get("amount_net") or 0)
+            vat_amount = float(r.get("vat_amount") or 0)
+            total = float(r.get("total") or r.get("amount") or 0)
         except ValueError:
-            errors.append(f"{exp_id}: non-numeric amount")
+            errors.append(f"{exp_id}: non-numeric amount fields")
             continue
 
-        if amount < 0:
-            errors.append(f"{exp_id}: negative amount {amount}")
+        if total < 0:
+            errors.append(f"{exp_id}: negative total {total}")
+        if abs((amount_net + vat_amount) - total) > 0.02:
+            warnings.append(f"{exp_id}: amount_net {amount_net} + vat_amount {vat_amount} ≠ total {total}")
 
         if not r.get("date"):
             warnings.append(f"{exp_id}: missing date")
+
+def check_account_plan():
+    try:
+        plan = load_account_plan()
+        settings = load_settings()
+    except (FileNotFoundError, ValueError) as exc:
+        errors.append(f"account_plan.yml: {exc}")
+        return
+
+    plan_errors, plan_warnings = validate_account_plan(plan, settings)
+    errors.extend(f"account_plan: {msg}" for msg in plan_errors)
+    warnings.extend(f"account_plan: {msg}" for msg in plan_warnings)
 
 
 def main():
     check_invoices()
     check_expenses()
+    check_account_plan()
 
     if warnings:
         print("⚠️  Warnings:")

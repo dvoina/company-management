@@ -4,9 +4,15 @@ on:
   push:
     paths:
       - 'ledger/**'
+      - 'settings.yml'
+      - 'scripts/validate_ledger.py'
+      - 'scripts/account_plan.py'
   pull_request:
     paths:
       - 'ledger/**'
+      - 'settings.yml'
+      - 'scripts/validate_ledger.py'
+      - 'scripts/account_plan.py'
 
 jobs:
   validate:

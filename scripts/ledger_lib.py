@@ -18,6 +18,7 @@ SCRIPTS_DIR= ROOT / "scripts"
 INVOICES_CSV = LEDGER_DIR / "invoices.csv"
 EXPENSES_CSV = LEDGER_DIR / "expenses.csv"
 JOURNAL_CSV  = LEDGER_DIR / "journal.csv"
+ACCOUNT_PLAN_YML = LEDGER_DIR / "account_plan.yml"
 
 INVOICE_FIELDS = [
     "invoice_id", "issue_number", "client", "client_cif", "client_address",
@@ -48,6 +49,39 @@ def load_settings():
         raise FileNotFoundError("settings.yml not found in repo root")
     with open(path) as f:
         return yaml.safe_load(f)
+
+
+def load_account_plan():
+    if not ACCOUNT_PLAN_YML.exists():
+        raise FileNotFoundError(f"{ACCOUNT_PLAN_YML} not found")
+    with open(ACCOUNT_PLAN_YML, encoding="utf-8") as f:
+        plan = yaml.safe_load(f) or {}
+    if not isinstance(plan, dict):
+        raise ValueError("account_plan.yml must contain a YAML object at root")
+    return plan
+
+
+def account_plan_index(plan=None):
+    plan = plan or load_account_plan()
+    rows = plan.get("accounts") or []
+    out = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        code = str(row.get("code") or "").strip()
+        if code:
+            out[code] = row
+    return out
+
+
+def account_name(code, fallback=""):
+    key = str(code or "").strip()
+    if not key:
+        return fallback
+    row = account_plan_index().get(key)
+    if not row:
+        return fallback
+    return str(row.get("name") or fallback)
 
 
 def ensure_ledger():

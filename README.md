@@ -44,6 +44,8 @@ python gl.py expense --supplier "Vendor SRL" --amount-net 100 --vat-amount 19 --
 python gl.py pay --invoice-id FCT-001 --paid-date 2026-04-10 --json
 python gl.py summary --json
 python gl.py validate
+python gl.py plan-validate
+python gl.py plan-tree
 ```
 
 ---
@@ -111,6 +113,7 @@ Every push to `ledger/` runs a validation check:
 - Negative amounts
 - VAT math consistency
 - Overdue invoices still marked unpaid
+- Chart-of-accounts structure and mappings against `ledger/account_plan.yml`
 
 Failures block merges if you set branch protection rules.
 
@@ -149,6 +152,11 @@ Failures block merges if you set branch protection rules.
 | description | What for |
 | tax_deductible | Yes / No / Partial |
 
+**account_plan.yml**
+- Auditable chart of accounts (Romanian synthetic/analytic hierarchy)
+- Single source of truth for account code, name, parent, type, and postable status
+- Can be validated/visualized with `python gl.py plan-validate` and `python gl.py plan-tree`
+
 ---
 
 ## Tips
@@ -176,8 +184,11 @@ Failures block merges if you set branch protection rules.
 ledger/
   invoices.csv           # All invoices
   expenses.csv           # All expenses
+  journal.csv            # Double-entry journal
+  account_plan.yml       # Auditable chart of accounts
 scripts/
   ledger_lib.py          # Shared utilities
+  account_plan.py        # Account-plan validator + tree visualizer
   register_invoice.py    # Parse & register invoice issues
   generate_invoice_pdf.py# Render invoice PDFs (+ optional signing)
   mark_paid.py           # Mark invoice paid
