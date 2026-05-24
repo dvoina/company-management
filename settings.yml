@@ -1,0 +1,127 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Company Settings
+# This file is the single source of truth for all company data.
+# Referenced by every script and SAF-T export.
+# ─────────────────────────────────────────────────────────────────────────────
+
+company:
+  name: "Exemplu SRL"                  # Legal name exactly as registered
+  type: "SRL"                          # PFA | SRL | II | SA | RA
+  cif: "RO12345678"                    # Cod de Identificare Fiscală (with RO prefix if VAT registered)
+  reg_com: "J35/123/2024"              # Număr Registrul Comerțului
+  vat_registered: true                 # true = plătitor de TVA
+  vat_rate_default: 19                 # 19 | 9 | 5 | 0
+
+  address:
+    street: "Str. Exemplu nr. 1"
+    city: "Timișoara"
+    county: "Timiș"
+    postal_code: "300001"
+    country: "RO"
+
+  contact:
+    email: "office@exemplu.ro"
+    phone: "+40 7xx xxx xxx"
+    website: "https://exemplu.ro"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Bank accounts (can have multiple)
+# ─────────────────────────────────────────────────────────────────────────────
+bank_accounts:
+  - label: "RON - BT"
+    iban: "RO49BTRLRONCRT0123456789"
+    currency: "RON"
+    bank_name: "Banca Transilvania"
+    bic: "BTRLRO22"
+    default: true
+
+  - label: "EUR - BT"
+    iban: "RO49BTRLEURCRT0123456789"
+    currency: "EUR"
+    bank_name: "Banca Transilvania"
+    bic: "BTRLRO22"
+    default: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SAF-T / ANAF specific
+# ─────────────────────────────────────────────────────────────────────────────
+saft:
+  fiscal_year_start: "01-01"           # MM-DD
+  reporting_period: "monthly"          # monthly | quarterly | annual
+  # Taxpayer size affects which SAF-T sections are mandatory
+  taxpayer_size: "small"               # large | medium | small | micro
+
+  # Default GL account mappings — adjust to your chart of accounts
+  accounts:
+    revenue_services:   "704"          # Venituri din servicii prestate
+    revenue_goods:      "707"          # Venituri din vânzarea mărfurilor
+    receivables:        "4111"         # Clienți
+    payables:           "401"          # Furnizori
+    vat_collected:      "4427"         # TVA colectată
+    vat_deductible:     "4426"         # TVA deductibilă
+    vat_payable:        "4423"         # TVA de plată
+    cash:               "5311"         # Casa în lei
+    bank_ron:           "5121"         # Conturi la bănci în lei
+    bank_eur:           "5124"         # Conturi la bănci în valută
+    expenses_services:  "628"          # Alte cheltuieli cu serviciile
+    expenses_software:  "628"          # (same — refine as needed)
+    expenses_travel:    "625"          # Cheltuieli cu deplasări
+    expenses_hardware:  "214"          # Mobilier, aparatură birotică
+    expenses_office:    "604"          # Cheltuieli privind materialele nestocate
+
+  # VAT tax codes used in SAF-T XML
+  vat_codes:
+    standard:   "TV19"                 # TVA 19%
+    reduced_9:  "TV9"                  # TVA 9%
+    reduced_5:  "TV5"                  # TVA 5%
+    exempt:     "TVS"                  # Scutit
+    reverse_charge: "TVRCH"            # Taxare inversă (intra-EU)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Invoice defaults
+# ─────────────────────────────────────────────────────────────────────────────
+invoice_defaults:
+  currency: "RON"
+  payment_terms_days: 30
+  language: "ro"                       # ro | en
+  series: "FCT"                        # Invoice series prefix (FCT-001, FCT-002…)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Invoice PDF generation
+# ─────────────────────────────────────────────────────────────────────────────
+invoice_pdf:
+  output_dir: "generated/invoices"
+  logo_path: ""                        # e.g. assets/logo.png
+
+  # Optional digital signature with X.509 certificate.
+  # Keep cert/key files out of git and mount them in CI or local runtime.
+  signature:
+    enabled: false
+    cert_file: ""                      # e.g. /secure/certs/invoice-signing.crt
+    key_file: ""                       # e.g. /secure/certs/invoice-signing.key
+    key_passphrase_env: "INVOICE_PDF_KEY_PASSPHRASE"
+    field_name: "Signature1"
+    reason: "Invoice approval"
+    location: "Timisoara, RO"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Expense category → GL account mapping
+# ─────────────────────────────────────────────────────────────────────────────
+expense_categories:
+  Software:   { account: "628", deductible: true }
+  Travel:     { account: "625", deductible: true }
+  Hardware:   { account: "214", deductible: true }
+  Office:     { account: "604", deductible: true }
+  Marketing:  { account: "623", deductible: true }
+  Utilities:  { account: "605", deductible: true }
+  Other:      { account: "628", deductible: true }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Balance sheet mapping (optional)
+# Use account prefixes to override default account classification.
+# ─────────────────────────────────────────────────────────────────────────────
+balance_sheet:
+  account_prefixes:
+    assets: []
+    liabilities: []
+    equity: []

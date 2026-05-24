@@ -1,0 +1,57 @@
+name: Expense Logger
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  log-expense:
+    if: contains(github.event.issue.labels.*.name, 'expense')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Parse and log expense
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python scripts/log_expense.py
+
+      - name: Commit ledger update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ledger/
+          git diff --staged --quiet || git commit -m "ledger: expense #${{ github.event.issue.number }}"
+          git push
+
+      - name: Comment confirmation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `📝 **Expense logged** in the ledger. Close this issue when done.`
+            });
+            // Auto-close expense issues — they're just log entries
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'closed'
+            });

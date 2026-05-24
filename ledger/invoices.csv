@@ -1,0 +1,1 @@
+invoice_id,issue_number,client,client_cif,client_address,client_email,intra_eu,invoice_date,due_date,currency,subtotal,vat_rate,vat_amount,total,status,paid_date,payment_method,bank_account,description,line_items_json

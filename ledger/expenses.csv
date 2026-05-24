@@ -1,0 +1,1 @@
+expense_id,issue_number,date,supplier_name,supplier_cif,supplier_country,intra_eu,invoice_ref,amount_net,vat_amount,total,currency,category,description,payment_method,tax_deductible,gl_account
