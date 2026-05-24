@@ -4,20 +4,18 @@
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
 import typer
 
-ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS_DIR = Path(__file__).resolve().parent
-
+import validate_ledger
+from account_plan import account_plan_index, render_plan_tree, validate_account_plan
 from double_entry import journal_for_expense, journal_for_invoice, journal_for_payment
 from ledger_lib import (
     ensure_ledger,
+    load_account_plan,
     load_settings,
     next_expense_id,
     next_invoice_id,
@@ -293,27 +291,32 @@ def summary_command(as_json: bool = typer.Option(False, "--json")) -> None:
 
 @app.command("validate")
 def validate_command() -> None:
-    _run_script("validate_ledger.py")
-
-
-def _run_script(script_name: str, *args: str) -> None:
-    proc = subprocess.run(
-        [sys.executable, str(SCRIPTS_DIR / script_name), *args],
-        cwd=str(ROOT),
-        capture_output=True,
-        text=True,
-    )
-    if proc.stdout:
-        typer.echo(proc.stdout.strip())
-    if proc.stderr:
-        typer.echo(proc.stderr.strip(), err=True)
-    if proc.returncode:
-        raise typer.Exit(proc.returncode)
+    validate_ledger.errors.clear()
+    validate_ledger.warnings.clear()
+    try:
+        validate_ledger.main()
+    except SystemExit as exc:
+        code = exc.code if isinstance(exc.code, int) else 1
+        if code:
+            raise typer.Exit(code) from exc
 
 
 @app.command("plan-validate")
 def plan_validate_command() -> None:
-    _run_script("account_plan.py", "validate")
+    plan = load_account_plan()
+    settings = load_settings()
+    errors, warnings = validate_account_plan(plan, settings)
+
+    if warnings:
+        typer.echo("⚠️  Warnings:")
+        for warning in warnings:
+            typer.echo(f"  - {warning}")
+    if errors:
+        typer.echo("❌ Account plan validation failed:")
+        for error in errors:
+            typer.echo(f"  - {error}")
+        raise typer.Exit(1)
+    typer.echo(f"✅ Account plan valid — {len(account_plan_index(plan))} accounts")
 
 
 @app.command("plan-tree")
@@ -321,12 +324,15 @@ def plan_tree_command(
     markdown: bool = typer.Option(False, "--markdown"),
     output: Optional[str] = typer.Option(None, "--output"),
 ) -> None:
-    args = ["tree"]
-    if markdown:
-        args.append("--markdown")
+    plan = load_account_plan()
+    rendered = render_plan_tree(plan, markdown=markdown)
     if output:
-        args.extend(["--output", output])
-    _run_script("account_plan.py", *args)
+        out = Path(output)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(rendered, encoding="utf-8")
+        typer.echo(f"Chart of accounts written to {out}")
+        return
+    typer.echo(rendered, nl=False)
 
 
 if __name__ == "__main__":
