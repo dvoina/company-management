@@ -24,10 +24,26 @@ To adapt it for another country (for example, **Estonia**), update these parts f
    - Settings → Actions → General → Workflow permissions → *Read and write*
 4. That's it. No secrets needed for core functionality.
 5. For local script runs, install dependencies with `pip install -r requirements.txt`.
+6. For local accounting actions, use `python gl.py --help`.
 
 Run tests locally:
 ```
 python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+---
+
+## Local CLI (gl.py)
+
+`gl.py` provides non-interactive local commands that write to the same ledger files used by CI workflows.
+
+Examples:
+```bash
+python gl.py income --client "ACME SRL" --amount-net 1000 --date 2026-04-05 --due-date 2026-05-05 --json
+python gl.py expense --supplier "Vendor SRL" --amount-net 100 --vat-amount 19 --category Software --date 2026-04-06 --json
+python gl.py pay --invoice-id FCT-001 --paid-date 2026-04-10 --json
+python gl.py summary --json
+python gl.py validate
 ```
 
 ---

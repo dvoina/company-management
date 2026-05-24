@@ -1,3 +1,4 @@
 PyYAML
 reportlab
 pyHanko
+typer
