@@ -30,7 +30,22 @@ def main():
     wiki_url = f"https://x-access-token:{gh_token}@github.com/{repo}.wiki.git"
 
     # Clone wiki
-    subprocess.run(["git", "clone", wiki_url, "/tmp/wiki"], check=True)
+    clone = subprocess.run(
+        ["git", "clone", wiki_url, "/tmp/wiki"],
+        capture_output=True,
+        text=True,
+    )
+    if clone.returncode != 0:
+        clone_output = f"{clone.stdout}\n{clone.stderr}".lower()
+        if "repository not found" in clone_output:
+            print(f"Wiki repository not found for {repo}; skipping wiki push.")
+            return
+        raise subprocess.CalledProcessError(
+            clone.returncode,
+            clone.args,
+            output=clone.stdout,
+            stderr=clone.stderr,
+        )
 
     # Copy report pages
     if report_path.exists():
