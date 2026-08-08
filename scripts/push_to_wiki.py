@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import quote
 import typer
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -27,7 +28,7 @@ def main():
         print(f"No report files found for {ym}, skipping wiki push.")
         return
 
-    wiki_url = f"https://{gh_token}@github.com/{repo}.wiki.git"
+    wiki_url = f"https://{quote(gh_token, safe='')}@github.com/{repo}.wiki.git"
 
     # Clone wiki
     subprocess.run(["git", "clone", wiki_url, "/tmp/wiki"], check=True)
