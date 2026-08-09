@@ -29,8 +29,14 @@ def main():
 
     wiki_url = f"https://x-access-token:{gh_token}@github.com/{repo}.wiki.git"
 
-    # Clone wiki
-    subprocess.run(["git", "clone", wiki_url, "/tmp/wiki"], check=True)
+    # Clone wiki, or initialise a fresh repo if the wiki doesn't exist yet
+    clone_result = subprocess.run(["git", "clone", wiki_url, "/tmp/wiki"])
+    if clone_result.returncode != 0:
+        print("Wiki not found – initialising a new wiki repository.")
+        wiki_dir = Path("/tmp/wiki")
+        wiki_dir.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["git", "init"], cwd=wiki_dir, check=True)
+        subprocess.run(["git", "remote", "add", "origin", wiki_url], cwd=wiki_dir, check=True)
 
     # Copy report pages
     if report_path.exists():
@@ -64,7 +70,7 @@ def main():
     result = subprocess.run(["git", "-C", "/tmp/wiki", "diff", "--staged", "--quiet"])
     if result.returncode != 0:
         subprocess.run(["git", "-C", "/tmp/wiki", "commit", "-m", f"report: {ym}"], check=True)
-        subprocess.run(["git", "-C", "/tmp/wiki", "push"], check=True)
+        subprocess.run(["git", "-C", "/tmp/wiki", "push", "--set-upstream", "origin", "HEAD"], check=True)
         print(f"Wiki updated with report {ym}")
     else:
         print("No wiki changes.")
